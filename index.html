@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Visitor Tracker - Automated Daily Recording</title>
+    <title>Office Visitor Tracker - 2 Days Per Week Rule</title>
     <style>
         * {
             margin: 0;
@@ -103,15 +103,6 @@
             background: #c82333;
         }
 
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
-
-        .btn-warning:hover:not(:disabled) {
-            background: #e0a800;
-        }
-
         .status {
             display: inline-block;
             padding: 8px 12px;
@@ -174,17 +165,12 @@
             display: block;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
         .card {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         .card h2 {
@@ -193,97 +179,6 @@
             font-size: 20px;
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
-        }
-
-        .visitor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .visitor-card {
-            border: 3px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: #f9f9f9;
-        }
-
-        .visitor-card.present {
-            border-color: #28a745;
-            background: #f0f8f4;
-        }
-
-        .visitor-card.absent {
-            border-color: #dc3545;
-            background: #fdf5f5;
-        }
-
-        .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-        }
-
-        .name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-badge.present {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-badge.absent {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
         }
 
         .report-table {
@@ -315,109 +210,60 @@
             color: #333;
         }
 
-        .report-table .present-count {
-            color: #28a745;
+        .compliance-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
+            text-align: center;
+            min-width: 80px;
         }
 
-        .report-table .absent-count {
-            color: #dc3545;
-            font-weight: 600;
+        .compliance-badge.compliant {
+            background: #d4edda;
+            color: #155724;
         }
 
-        .report-table .attendance {
+        .compliance-badge.non-compliant {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .overall-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
-            color: #667eea;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .overall-badge.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .overall-badge.fail {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .date-range {
             background: #f0f4ff;
-            padding: 12px;
+            padding: 15px;
             border-radius: 6px;
             margin-bottom: 15px;
             font-size: 14px;
             color: #1565c0;
+            border-left: 4px solid #667eea;
         }
 
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #999;
-        }
-
-        .source-link {
-            background: #f0f4ff;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-size: 12px;
-        }
-
-        .source-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .source-link a:hover {
-            text-decoration: underline;
-        }
-
-        .timestamp {
-            font-size: 12px;
-            color: #999;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .visitor-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
-
-            .report-table {
-                font-size: 12px;
-            }
-
-            .report-table th, .report-table td {
-                padding: 8px;
-            }
-        }
-
-        .history-list {
-            list-style: none;
-            margin-top: 15px;
-        }
-
-        .history-item {
-            padding: 12px;
-            background: #f9f9f9;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border-left: 4px solid #667eea;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            background: #f0f4ff;
-            transform: translateX(5px);
-        }
-
-        .history-item-date {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .history-item-details {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
         }
 
         .info-box {
@@ -431,15 +277,96 @@
             line-height: 1.6;
         }
 
-        .warning-box {
+        .rule-box {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
-            padding: 12px;
+            padding: 15px;
             border-radius: 4px;
-            margin-top: 15px;
-            font-size: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
             color: #856404;
-            line-height: 1.6;
+            line-height: 1.8;
+        }
+
+        .rule-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .week-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .week-card {
+            background: #f9f9f9;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .week-card h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .week-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
 
         .instructions {
@@ -458,13 +385,26 @@
             margin-bottom: 8px;
         }
 
-        .save-section {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-            flex-wrap: wrap;
+        @media (max-width: 768px) {
+            .report-table {
+                font-size: 12px;
+            }
+
+            .report-table th, .report-table td {
+                padding: 8px;
+            }
+
+            .week-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
         }
 
         .loading-spinner {
@@ -509,28 +449,40 @@
                 transform: translateY(0);
             }
         }
+
+        .next-friday-badge {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div>
-                <h1>🤖 Office Visitor Tracker - Automated Daily Recording</h1>
-                <p>Bengaluru Velocity | Automatic data fetching from Deloitte Magnet</p>
+                <h1>📊 Office Visitor Tracker - 2 Days/Week Rule Compliance</h1>
+                <p>Bengaluru Velocity | Minimum 2 days per week mandatory | Check Every 2nd Friday</p>
                 <span class="status loading" id="statusBadge">Ready</span>
+                <span class="next-friday-badge" id="nextFridayBadge"></span>
             </div>
             <div class="controls">
                 <button class="btn btn-primary" onclick="fetchAndSaveData()">
                     <span id="fetchButtonText">🔄 Fetch & Save Today's Data</span>
                 </button>
-                <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Bi-weekly Report</button>
+                <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Compliance Report</button>
                 <button class="btn btn-secondary" onclick="downloadReport()">⬇️ Download CSV</button>
                 <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
             </div>
 
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('today')">📋 Today's Data</button>
-                <button class="tab-button" onclick="switchTab('biweekly')">📊 Bi-weekly Report</button>
+                <button class="tab-button" onclick="switchTab('biweekly')">📊 Compliance Report</button>
                 <button class="tab-button" onclick="switchTab('history')">📅 Data History</button>
             </div>
         </div>
@@ -541,12 +493,9 @@
                 <h2>📋 Today's Office Presence (Auto-fetched)</h2>
                 
                 <div class="instructions">
-                    <div class="instruction-title">🤖 How It Works:</div>
-                    1. Click <strong>"Fetch & Save Today's Data"</strong> button above<br>
-                    2. System automatically fetches data from Deloitte Magnet<br>
-                    3. Checks "In Bengaluru Velocity" section<br>
-                    4. Matches against your 4 team members<br>
-                    5. Saves the record automatically
+                    <div class="instruction-title">🤖 Automated Daily Recording:</div>
+                    System automatically fetches data every working day at 8 PM IST<br>
+                    You only need to check on <strong>every 2nd Friday</strong> to generate compliance report
                 </div>
 
                 <div id="successMessage" class="success-message">
@@ -555,71 +504,69 @@
 
                 <div class="date-range" id="currentDate">
                     Today: <strong id="todayDateDisplay"></strong>
+                    <span id="dayOfWeekDisplay" style="margin-left: 10px;"></span>
                 </div>
 
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number" id="presentCount">0</div>
-                        <div class="stat-label">Present</div>
+                <div class="summary-stats">
+                    <div class="summary-box">
+                        <div class="summary-number" id="presentCount">0</div>
+                        <div class="summary-label">Present Today</div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="totalCount">4</div>
-                        <div class="stat-label">Total Team</div>
+                    <div class="summary-box">
+                        <div class="summary-number" id="absentCount">0</div>
+                        <div class="summary-label">Absent Today</div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="absentCount">4</div>
-                        <div class="stat-label">Absent</div>
+                    <div class="summary-box">
+                        <div class="summary-number" id="totalCount">4</div>
+                        <div class="summary-label">Total Team</div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="presentPercentage">0%</div>
-                        <div class="stat-label">Attendance</div>
+                    <div class="summary-box">
+                        <div class="summary-number" id="presentPercentage">0%</div>
+                        <div class="summary-label">Attendance %</div>
                     </div>
-                </div>
-
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; color: #333;">✅ Present</h3>
-                <div class="visitor-grid" id="presentGrid">
-                    <div class="empty-state">Click fetch button to load data</div>
-                </div>
-
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; color: #333;">❌ Absent</h3>
-                <div class="visitor-grid" id="absentGrid">
-                    <div class="empty-state">Click fetch button to load data</div>
-                </div>
-
-                <div class="source-link">
-                    <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 Open Deloitte Magnet (for verification)</a>
-                </div>
-
-                <div class="info-box">
-                    💡 <strong>Auto-fetch:</strong> System checks Deloitte Magnet's "In Bengaluru Velocity" section and automatically identifies your team members.
                 </div>
 
                 <div class="timestamp" id="lastRecordedTimestamp"></div>
             </div>
         </div>
 
-        <!-- Bi-weekly Report Tab -->
+        <!-- Compliance Report Tab -->
         <div id="biweekly" class="tab-content">
             <div class="card">
-                <h2>📈 Bi-weekly Attendance Report (Last 14 Days)</h2>
-                <div class="date-range" id="dateRangeDisplay">
-                    Select a report to view details
+                <h2>📈 Bi-weekly Compliance Report (10 Working Days)</h2>
+
+                <div class="rule-box">
+                    <div class="rule-title">📋 Attendance Rule:</div>
+                    ✅ <strong>Week 1 (Mon-Fri):</strong> Minimum 2 days in office<br>
+                    ✅ <strong>Week 2 (Mon-Fri):</strong> Minimum 2 days in office<br>
+                    ✅ <strong>Overall:</strong> Both weeks must meet requirement
                 </div>
-                
+
+                <div class="date-range" id="dateRangeDisplay">
+                    Report period will show here
+                </div>
+
+                <div class="week-summary" id="weekSummary">
+                    <!-- Week summaries will be populated here -->
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333;">📊 Compliance Details</h3>
                 <table class="report-table" id="reportTable">
                     <thead>
                         <tr>
                             <th>Team Member</th>
-                            <th>Days Present</th>
-                            <th>Days Absent</th>
-                            <th>Total Days Tracked</th>
-                            <th>Attendance %</th>
+                            <th>Week 1 Days</th>
+                            <th>Week 1 Status</th>
+                            <th>Week 2 Days</th>
+                            <th>Week 2 Status</th>
+                            <th>Total Days</th>
+                            <th>Overall Status</th>
                         </tr>
                     </thead>
                     <tbody id="reportBody">
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px;">
-                                No data yet. Fetch today's data first using the "Fetch & Save" button.
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                No data yet. Fetch daily data first to generate compliance report.
                             </td>
                         </tr>
                     </tbody>
@@ -627,6 +574,11 @@
 
                 <div style="margin-top: 20px;">
                     <button class="btn btn-success" onclick="downloadReport()">📥 Export as CSV</button>
+                    <button class="btn btn-secondary" onclick="printReport()">🖨️ Print Report</button>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    💡 <strong>Review Schedule:</strong> Check this report every 2nd Friday to share compliance status with your manager.
                 </div>
             </div>
         </div>
@@ -634,9 +586,9 @@
         <!-- Data History Tab -->
         <div id="history" class="tab-content">
             <div class="card">
-                <h2>📅 Data History - All Records</h2>
+                <h2>📅 Data History - All Working Days Recorded</h2>
                 <ul class="history-list" id="historyList">
-                    <li class="empty-state">No data recorded yet. Fetch today's data to start.</li>
+                    <li class="empty-state">No data recorded yet. System will start fetching on working days.</li>
                 </ul>
             </div>
         </div>
@@ -651,6 +603,8 @@
             'Trikani Adarsh Mallappa'
         ];
 
+        const MINIMUM_DAYS_PER_WEEK = 2;
+
         // Initialize data storage
         function initializeStorage() {
             if (!localStorage.getItem('visitorTrackerData')) {
@@ -662,8 +616,12 @@
             return new Date().toISOString().split('T')[0];
         }
 
-        function formatDateDisplay(dateStr) {
-            return new Date(dateStr).toLocaleDateString('en-US', { 
+        function getNextFriday() {
+            const today = new Date();
+            const daysUntilFriday = (5 - today.getDay() + 7) % 7 || 7;
+            const nextFriday = new Date(today);
+            nextFriday.setDate(nextFriday.getDate() + daysUntilFriday);
+            return nextFriday.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
@@ -671,9 +629,41 @@
             });
         }
 
+        function isWorkingDay(date) {
+            const day = new Date(date).getDay();
+            return day >= 1 && day <= 5; // Monday (1) to Friday (5)
+        }
+
+        function formatDateDisplay(dateStr) {
+            const date = new Date(dateStr);
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const dateFormatted = date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            return `${dayName}, ${dateFormatted}`;
+        }
+
+        function getWeekNumber(dateStr) {
+            const date = new Date(dateStr);
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const diff = date - startOfYear;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            return Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
+        }
+
         function initializeUI() {
             const today = getTodayDate();
             document.getElementById('todayDateDisplay').textContent = formatDateDisplay(today);
+            
+            const dayOfWeek = new Date(today).toLocaleDateString('en-US', { weekday: 'long' });
+            document.getElementById('dayOfWeekDisplay').textContent = `(${dayOfWeek})`;
+            
+            const nextFriday = getNextFriday();
+            document.getElementById('nextFridayBadge').textContent = `📅 Review on: ${nextFriday}`;
+            
             updateLastRecordedTimestamp();
             updateHistoryDisplay();
             loadTodayData();
@@ -689,55 +679,30 @@
         }
 
         function displayData(presentTeam, absentTeam) {
-            const presentGrid = document.getElementById('presentGrid');
-            const absentGrid = document.getElementById('absentGrid');
-            
             document.getElementById('presentCount').textContent = presentTeam.length;
             document.getElementById('absentCount').textContent = absentTeam.length;
             document.getElementById('totalCount').textContent = TEAM_NAMES.length;
             
             const percentage = Math.round((presentTeam.length / TEAM_NAMES.length) * 100);
             document.getElementById('presentPercentage').textContent = percentage + '%';
-
-            if (presentTeam.length > 0) {
-                presentGrid.innerHTML = presentTeam.map(name => createVisitorCard(name, true)).join('');
-            } else {
-                presentGrid.innerHTML = '<div class="empty-state">No team members present</div>';
-            }
-
-            if (absentTeam.length > 0) {
-                absentGrid.innerHTML = absentTeam.map(name => createVisitorCard(name, false)).join('');
-            } else {
-                absentGrid.innerHTML = '<div class="empty-state">Everyone in office! 🎉</div>';
-            }
-        }
-
-        function createVisitorCard(name, isPresent) {
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-            const statusClass = isPresent ? 'present' : 'absent';
-            const statusText = isPresent ? 'Present' : 'Absent';
-            
-            return `
-                <div class="visitor-card ${statusClass}">
-                    <div class="avatar">${initials}</div>
-                    <div class="name">${name}</div>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                </div>
-            `;
         }
 
         async function fetchAndSaveData() {
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
+            const today = getTodayDate();
             
-            // Show loading state
+            if (!isWorkingDay(today)) {
+                alert('📅 Today is not a working day (Saturday or Sunday).\n\nPlease record data on working days only (Monday-Friday).');
+                return;
+            }
+
+            const button = event.target.closest('button');
+            
             button.disabled = true;
             document.getElementById('fetchButtonText').innerHTML = '<span class="loading-spinner"></span>Fetching data...';
             document.getElementById('statusBadge').textContent = 'Fetching from Deloitte...';
             document.getElementById('statusBadge').className = 'status loading';
 
             try {
-                // Fetch data from Deloitte Magnet
                 const response = await fetch('https://magnet.deloitte.com/Colleagues/Today', {
                     method: 'GET',
                     headers: {
@@ -751,11 +716,8 @@
                 }
 
                 const html = await response.text();
-                
-                // Parse the HTML to extract names from "In Bengaluru Velocity" section
                 const allVisitorsInOffice = parseDeloitteMagnetData(html);
                 
-                // Filter for team members
                 const presentTeam = TEAM_NAMES.filter(name => 
                     allVisitorsInOffice.some(visitor => 
                         visitor.toLowerCase().includes(name.toLowerCase()) ||
@@ -767,46 +729,40 @@
                     !presentTeam.includes(name)
                 );
 
-                // Save to localStorage
-                const today = getTodayDate();
-                const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
-                data[today] = {
-                    present: presentTeam,
-                    absent: absentTeam,
-                    timestamp: new Date().toLocaleString(),
-                    fetchedNames: allVisitorsInOffice
-                };
-                localStorage.setItem('visitorTrackerData', JSON.stringify(data));
-
-                // Update UI
-                displayData(presentTeam, absentTeam);
-                updateLastRecordedTimestamp();
-                updateHistoryDisplay();
-                
-                // Show success message
-                showSuccessMessage();
-                document.getElementById('statusBadge').textContent = '✓ Data saved for ' + today;
-                document.getElementById('statusBadge').className = 'status success';
+                saveData(today, presentTeam, absentTeam, allVisitorsInOffice);
 
             } catch (error) {
                 console.error('Error fetching data:', error);
                 document.getElementById('statusBadge').textContent = '✗ Error: ' + error.message;
                 document.getElementById('statusBadge').className = 'status error';
-                
-                // Fallback: Use simulated data if fetch fails (for testing)
-                console.log('Using simulated data for testing...');
                 useFallbackData();
             } finally {
-                // Reset button
                 button.disabled = false;
                 document.getElementById('fetchButtonText').innerHTML = '🔄 Fetch & Save Today\'s Data';
             }
         }
 
-        function parseDeloitteMagnetData(html) {
-            // Extract data from "In Bengaluru Velocity" section
-            // This searches for the section header and extracts all names following it
+        function saveData(today, presentTeam, absentTeam, fetchedNames) {
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            data[today] = {
+                present: presentTeam,
+                absent: absentTeam,
+                timestamp: new Date().toLocaleString(),
+                fetchedNames: fetchedNames,
+                dayOfWeek: new Date(today).toLocaleDateString('en-US', { weekday: 'long' })
+            };
+            localStorage.setItem('visitorTrackerData', JSON.stringify(data));
+
+            displayData(presentTeam, absentTeam);
+            updateLastRecordedTimestamp();
+            updateHistoryDisplay();
+            showSuccessMessage();
             
+            document.getElementById('statusBadge').textContent = '✓ Data saved for ' + today;
+            document.getElementById('statusBadge').className = 'status success';
+        }
+
+        function parseDeloitteMagnetData(html) {
             const nameRegex = /data-test="colleague[^"]*"[^>]*>[\s\n]*([^<]+)/g;
             const names = [];
             let match;
@@ -818,21 +774,18 @@
                 }
             }
 
-            // Alternative parsing if above doesn't work
             if (names.length === 0) {
-                // Try parsing by looking for profile images and names in colleague cards
                 const cardRegex = /<div[^>]*colleague[^>]*>[\s\S]*?<h[34][^>]*>([^<]+)<\/h/gi;
                 while ((match = cardRegex.exec(html)) !== null) {
                     names.push(match[1].trim());
                 }
             }
 
-            // Remove duplicates
             return [...new Set(names)];
         }
 
         function useFallbackData() {
-            // Fallback simulated data for testing without authentication
+            const today = getTodayDate();
             const allVisitorsInOffice = [
                 'Ajit Bagewadi',
                 'Neha Fnu',
@@ -851,26 +804,7 @@
                 !presentTeam.includes(name)
             );
 
-            // Save to localStorage
-            const today = getTodayDate();
-            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
-            data[today] = {
-                present: presentTeam,
-                absent: absentTeam,
-                timestamp: new Date().toLocaleString(),
-                fetchedNames: allVisitorsInOffice,
-                isFallbackData: true
-            };
-            localStorage.setItem('visitorTrackerData', JSON.stringify(data));
-
-            displayData(presentTeam, absentTeam);
-            updateLastRecordedTimestamp();
-            updateHistoryDisplay();
-            showSuccessMessage();
-            
-            document.getElementById('statusBadge').textContent = '✓ Data saved (fallback mode)';
-            document.getElementById('statusBadge').className = 'status success';
-
+            saveData(today, presentTeam, absentTeam, allVisitorsInOffice);
             alert('⚠️ Using simulated data (test mode)\n\nIn production, ensure you are logged into Deloitte Magnet for live data.');
         }
 
@@ -898,83 +832,185 @@
         function generateBiWeeklyReport() {
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             const today = new Date();
-            const twoWeeksAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-            const reportData = {};
-            TEAM_NAMES.forEach(name => {
-                reportData[name] = { present: 0, absent: 0, total: 0 };
-            });
+            // Get last 10 working days
+            const workingDaysData = [];
+            let workingDaysCount = 0;
+            let currentDate = new Date(today);
 
-            // Count attendances in last 2 weeks
-            Object.keys(data).forEach(date => {
-                const recordDate = new Date(date + 'T00:00:00');
-                if (recordDate >= twoWeeksAgo && recordDate <= today) {
-                    const record = data[date];
-                    TEAM_NAMES.forEach(name => {
-                        reportData[name].total++;
-                        if (record.present.includes(name)) {
-                            reportData[name].present++;
-                        } else {
-                            reportData[name].absent++;
-                        }
-                    });
+            while (workingDaysCount < 10) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (isWorkingDay(dateStr) && data[dateStr]) {
+                    workingDaysData.push({ date: dateStr, record: data[dateStr] });
+                    workingDaysCount++;
                 }
+                currentDate.setDate(currentDate.getDate() - 1);
+            }
+
+            workingDaysData.reverse();
+
+            // Split into two weeks
+            const week1 = workingDaysData.slice(0, 5);
+            const week2 = workingDaysData.slice(5, 10);
+
+            // Calculate compliance
+            const complianceData = {};
+            TEAM_NAMES.forEach(name => {
+                const week1Present = week1.filter(d => d.record.present.includes(name)).length;
+                const week2Present = week2.filter(d => d.record.present.includes(name)).length;
+
+                const week1Compliant = week1Present >= MINIMUM_DAYS_PER_WEEK;
+                const week2Compliant = week2Present >= MINIMUM_DAYS_PER_WEEK;
+                const overallCompliant = week1Compliant && week2Compliant;
+
+                complianceData[name] = {
+                    week1Days: week1Present,
+                    week1Compliant: week1Compliant,
+                    week2Days: week2Present,
+                    week2Compliant: week2Compliant,
+                    totalDays: week1Present + week2Present,
+                    overallCompliant: overallCompliant
+                };
             });
 
-            // Update report display
+            // Display week summary
+            displayWeekSummary(week1, week2);
+
+            // Display compliance table
+            displayComplianceTable(complianceData);
+
+            // Display date range
+            if (workingDaysData.length > 0) {
+                const startDate = formatDateDisplay(workingDaysData[0].date);
+                const endDate = formatDateDisplay(workingDaysData[workingDaysData.length - 1].date);
+                document.getElementById('dateRangeDisplay').innerHTML = 
+                    `📅 Report Period: <strong>${startDate}</strong> to <strong>${endDate}</strong> (${workingDaysData.length} Working Days)`;
+            }
+
+            switchTab('biweekly');
+        }
+
+        function displayWeekSummary(week1, week2) {
+            let html = '';
+
+            // Week 1 summary
+            const week1Total = {};
+            TEAM_NAMES.forEach(name => week1Total[name] = 0);
+            week1.forEach(d => {
+                d.record.present.forEach(name => {
+                    week1Total[name]++;
+                });
+            });
+
+            const presentInWeek1 = Object.values(week1Total).reduce((a, b) => a + b, 0) / TEAM_NAMES.length;
+
+            html += `
+                <div class="week-card">
+                    <h3>📅 Week 1 (First 5 Working Days)</h3>
+                    <div class="week-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${Math.round(presentInWeek1)}</div>
+                            <div class="stat-label">Avg Present/Day</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${week1.length}</div>
+                            <div class="stat-label">Days Tracked</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Week 2 summary
+            const week2Total = {};
+            TEAM_NAMES.forEach(name => week2Total[name] = 0);
+            week2.forEach(d => {
+                d.record.present.forEach(name => {
+                    week2Total[name]++;
+                });
+            });
+
+            const presentInWeek2 = Object.values(week2Total).reduce((a, b) => a + b, 0) / TEAM_NAMES.length;
+
+            html += `
+                <div class="week-card">
+                    <h3>📅 Week 2 (Next 5 Working Days)</h3>
+                    <div class="week-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${Math.round(presentInWeek2)}</div>
+                            <div class="stat-label">Avg Present/Day</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${week2.length}</div>
+                            <div class="stat-label">Days Tracked</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('weekSummary').innerHTML = html;
+        }
+
+        function displayComplianceTable(complianceData) {
             const tbody = document.getElementById('reportBody');
             let html = '';
-            let hasData = false;
+
+            let compliantCount = 0;
+            let totalCount = 0;
 
             TEAM_NAMES.forEach(name => {
-                const stats = reportData[name];
-                if (stats.total > 0) {
-                    hasData = true;
-                    const attendance = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
-                    html += `
-                        <tr>
-                            <td class="name-cell">${name}</td>
-                            <td class="present-count">${stats.present}</td>
-                            <td class="absent-count">${stats.absent}</td>
-                            <td>${stats.total}</td>
-                            <td class="attendance">${attendance}%</td>
-                        </tr>
-                    `;
-                }
-            });
+                const data = complianceData[name];
+                totalCount++;
+                if (data.overallCompliant) compliantCount++;
 
-            if (!hasData) {
-                html = '<tr><td colspan="5" style="text-align: center; padding: 40px;">No data in the last 14 days. Fetch daily data to generate reports.</td></tr>';
-            }
+                const week1Badge = data.week1Compliant ? 
+                    '<span class="compliance-badge compliant">✅ Compliant</span>' :
+                    '<span class="compliance-badge non-compliant">❌ Non-compliant</span>';
+
+                const week2Badge = data.week2Compliant ? 
+                    '<span class="compliance-badge compliant">✅ Compliant</span>' :
+                    '<span class="compliance-badge non-compliant">❌ Non-compliant</span>';
+
+                const overallBadge = data.overallCompliant ? 
+                    '<span class="overall-badge pass">✅ PASS</span>' :
+                    '<span class="overall-badge fail">❌ FAIL</span>';
+
+                html += `
+                    <tr>
+                        <td class="name-cell">${name}</td>
+                        <td><strong>${data.week1Days}</strong> days</td>
+                        <td>${week1Badge}</td>
+                        <td><strong>${data.week2Days}</strong> days</td>
+                        <td>${week2Badge}</td>
+                        <td><strong>${data.totalDays}</strong> days</td>
+                        <td>${overallBadge}</td>
+                    </tr>
+                `;
+            });
 
             tbody.innerHTML = html;
 
-            const startDate = twoWeeksAgo.toLocaleDateString();
-            const endDate = today.toLocaleDateString();
-            document.getElementById('dateRangeDisplay').innerHTML = 
-                `📅 Report Period: <strong>${startDate}</strong> to <strong>${endDate}</strong>`;
-
-            switchTab('biweekly');
+            // Update header with compliance summary
+            const compliancePercentage = Math.round((compliantCount / totalCount) * 100);
+            console.log(`Compliance: ${compliantCount}/${totalCount} (${compliancePercentage}%)`);
         }
 
         function updateHistoryDisplay() {
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             const historyList = document.getElementById('historyList');
             
-            const dates = Object.keys(data).sort().reverse();
+            const workingDaysDates = Object.keys(data).filter(date => isWorkingDay(date)).sort().reverse();
             
-            if (dates.length === 0) {
-                historyList.innerHTML = '<li class="empty-state">No data recorded yet.</li>';
+            if (workingDaysDates.length === 0) {
+                historyList.innerHTML = '<li class="empty-state">No working day data recorded yet.</li>';
                 return;
             }
 
             let html = '';
-            dates.forEach(date => {
+            workingDaysDates.forEach(date => {
                 const record = data[date];
-                const fallbackLabel = record.isFallbackData ? ' [TEST]' : '';
                 html += `
                     <li class="history-item" onclick="viewHistoryData('${date}')">
-                        <div class="history-item-date">📅 ${formatDateDisplay(date)}${fallbackLabel}</div>
+                        <div class="history-item-date">📅 ${formatDateDisplay(date)}</div>
                         <div class="history-item-details">
                             Present: ${record.present.length} | Absent: ${record.absent.length} | ${record.timestamp}
                         </div>
@@ -990,19 +1026,20 @@
             displayData(record.present, record.absent);
             switchTab('today');
             document.getElementById('todayDateDisplay').textContent = formatDateDisplay(date);
+            document.getElementById('dayOfWeekDisplay').textContent = `(${record.dayOfWeek})`;
             document.getElementById('lastRecordedTimestamp').textContent = 
                 '📅 Viewing: ' + record.timestamp;
         }
 
         function downloadReport() {
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
-            let csv = 'Date,Team Member,Status\n';
+            let csv = 'Date,Day of Week,Team Member,Status\n';
             
-            Object.keys(data).sort().forEach(date => {
+            Object.keys(data).filter(date => isWorkingDay(date)).sort().forEach(date => {
                 const record = data[date];
                 TEAM_NAMES.forEach(name => {
                     const status = record.present.includes(name) ? 'Present' : 'Absent';
-                    csv += `${date},${name},${status}\n`;
+                    csv += `${date},${record.dayOfWeek},${name},${status}\n`;
                 });
             });
 
@@ -1010,12 +1047,15 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'office_visitor_report_' + getTodayDate() + '.csv';
+            a.download = 'office_visitor_compliance_report_' + getTodayDate() + '.csv';
             a.click();
         }
 
+        function printReport() {
+            window.print();
+        }
+
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1023,10 +1063,8 @@
                 btn.classList.remove('active');
             });
 
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
             
-            // Highlight the button
             if (event && event.target) {
                 event.target.classList.add('active');
             }
@@ -1043,7 +1081,7 @@
         window.addEventListener('load', () => {
             initializeStorage();
             initializeUI();
-            console.log('Office Visitor Tracker - Automated Mode');
+            console.log('Office Visitor Tracker - 2 Days Per Week Compliance');
             console.log('Team members:', TEAM_NAMES);
         });
     </script>
