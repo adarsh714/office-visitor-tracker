@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Visitor Tracker - Bengaluru Velocity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .visitor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .visitor-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .visitor-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .visitor-card.present {
+            border-color: #28a745;
+            background: #f0f8f4;
+        }
+
+        .visitor-card.absent {
+            border-color: #dc3545;
+            background: #fdf5f5;
+            opacity: 0.6;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .source-link {
+            background: #f0f4ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .source-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .source-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .visitor-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📍 Office Visitor Tracker</h1>
+                <p>Bengaluru Velocity | Track your team's presence</p>
+                <span class="status loading" id="statusBadge">Ready to fetch</span>
+            </div>
+            <div class="controls">
+                <button class="btn btn-primary" onclick="fetchVisitorData()">🔄 Fetch Data from Deloitte</button>
+                <button class="btn btn-secondary" onclick="clearData()">🗑️ Clear</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Present Section -->
+            <div class="card">
+                <h2>✅ Currently in Office</h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="presentCount">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">Total Team</div>
+                    </div>
+                </div>
+                <div class="visitor-grid" id="presentGrid">
+                    <div class="empty-state">No data fetched yet. Click "Fetch Data" to get started.</div>
+                </div>
+                <div class="source-link">
+                    <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 View on Deloitte Magnet</a>
+                </div>
+                <div class="info-box">
+                    💡 The system will check the "In Bengaluru Velocity" section on Deloitte Magnet and match against your predefined team list.
+                </div>
+            </div>
+
+            <!-- Absent Section -->
+            <div class="card">
+                <h2>❌ Not in Office</h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="absentCount">0</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="presentPercentage">0%</div>
+                        <div class="stat-label">Attendance Rate</div>
+                    </div>
+                </div>
+                <div class="visitor-grid" id="absentGrid">
+                    <div class="empty-state">Awaiting data...</div>
+                </div>
+                <div class="timestamp" id="timestamp"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Predefined team names - exactly as provided
+        const TEAM_NAMES = [
+            'Neha Fnu',
+            'Nirmala S',
+            'Gourav',
+            'Kumar',
+            'Trikani',
+            'Adarsh Mallappa'
+        ];
+
+        // Simulated data from "In Bengaluru Velocity" section
+        // In production, this would fetch from Deloitte Magnet API or web scraping
+        const SIMULATED_BENGALURU_VELOCITY = [
+            'Ajit Bagewadi',
+            'Neha Fnu',
+            'Pranavananda Pranavananda',
+            'Nirmala S',
+            'Shefali Nayak'
+        ];
+
+        async function fetchVisitorData() {
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = 'Loading...';
+            statusBadge.className = 'status loading';
+
+            try {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Filter for team members who are in Bengaluru Velocity
+                const presentTeam = TEAM_NAMES.filter(name => 
+                    SIMULATED_BENGALURU_VELOCITY.some(visitor => 
+                        visitor.toLowerCase().includes(name.toLowerCase()) ||
+                        name.toLowerCase().includes(visitor.toLowerCase())
+                    )
+                );
+
+                const absentTeam = TEAM_NAMES.filter(name => 
+                    !presentTeam.includes(name)
+                );
+
+                // Update UI
+                updateDisplay(presentTeam, absentTeam);
+                
+                statusBadge.textContent = '✓ Last updated: ' + new Date().toLocaleTimeString();
+                statusBadge.className = 'status success';
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                statusBadge.textContent = '✗ Error fetching data';
+                statusBadge.className = 'status error';
+            }
+        }
+
+        function updateDisplay(presentTeam, absentTeam) {
+            const presentGrid = document.getElementById('presentGrid');
+            const absentGrid = document.getElementById('absentGrid');
+            
+            // Update stats
+            document.getElementById('presentCount').textContent = presentTeam.length;
+            document.getElementById('absentCount').textContent = absentTeam.length;
+            document.getElementById('totalCount').textContent = TEAM_NAMES.length;
+            
+            const percentage = Math.round((presentTeam.length / TEAM_NAMES.length) * 100);
+            document.getElementById('presentPercentage').textContent = percentage + '%';
+
+            // Update present grid
+            if (presentTeam.length > 0) {
+                presentGrid.innerHTML = presentTeam.map(name => createVisitorCard(name, true)).join('');
+            } else {
+                presentGrid.innerHTML = '<div class="empty-state">No team members present today</div>';
+            }
+
+            // Update absent grid
+            if (absentTeam.length > 0) {
+                absentGrid.innerHTML = absentTeam.map(name => createVisitorCard(name, false)).join('');
+            } else {
+                absentGrid.innerHTML = '<div class="empty-state">Everyone is in the office! 🎉</div>';
+            }
+
+            // Update timestamp
+            document.getElementById('timestamp').textContent = 
+                'Last updated: ' + new Date().toLocaleString();
+        }
+
+        function createVisitorCard(name, isPresent) {
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const statusClass = isPresent ? 'present' : 'absent';
+            const statusText = isPresent ? 'Present' : 'Absent';
+            
+            return `
+                <div class="visitor-card ${statusClass}">
+                    <div class="avatar">${initials}</div>
+                    <div class="name">${name}</div>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+            `;
+        }
+
+        function clearData() {
+            document.getElementById('presentGrid').innerHTML = '<div class="empty-state">Cleared. Click "Fetch Data" to refresh.</div>';
+            document.getElementById('absentGrid').innerHTML = '<div class="empty-state">Cleared. Click "Fetch Data" to refresh.</div>';
+            document.getElementById('presentCount').textContent = '0';
+            document.getElementById('absentCount').textContent = '0';
+            document.getElementById('presentPercentage').textContent = '0%';
+            document.getElementById('statusBadge').textContent = 'Ready to fetch';
+            document.getElementById('statusBadge').className = 'status loading';
+            document.getElementById('timestamp').textContent = '';
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            console.log('Office Visitor Tracker initialized');
+            console.log('Team members:', TEAM_NAMES);
+        });
+    </script>
+</body>
+</html>
