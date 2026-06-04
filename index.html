@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Visitor Tracker - Bi-weekly Reports</title>
+    <title>Office Visitor Tracker - Daily Recording</title>
     <style>
         * {
             margin: 0;
@@ -122,6 +122,7 @@
             gap: 10px;
             margin-top: 20px;
             border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
         }
 
         .tab-button {
@@ -171,17 +172,18 @@
 
         .visitor-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 15px;
         }
 
         .visitor-card {
-            border: 2px solid #e0e0e0;
+            border: 3px solid #e0e0e0;
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
             background: #f9f9f9;
+            cursor: pointer;
         }
 
         .visitor-card:hover {
@@ -198,7 +200,18 @@
         .visitor-card.absent {
             border-color: #dc3545;
             background: #fdf5f5;
-            opacity: 0.6;
+        }
+
+        .visitor-card.selected-present {
+            border-color: #28a745;
+            background: #d4edda;
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .visitor-card.selected-absent {
+            border-color: #dc3545;
+            background: #f8d7da;
+            box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
         }
 
         .avatar {
@@ -357,7 +370,7 @@
             }
 
             .visitor-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
 
             .report-table {
@@ -400,8 +413,40 @@
             margin-top: 5px;
         }
 
-        .export-button {
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
             margin-top: 15px;
+            font-size: 12px;
+            color: #1565c0;
+            line-height: 1.6;
+        }
+
+        .instructions {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .instruction-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .save-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -409,63 +454,54 @@
     <div class="container">
         <div class="header">
             <div>
-                <h1>📊 Office Visitor Tracker - Bi-weekly Reports</h1>
-                <p>Bengaluru Velocity | Track team presence over 2-week periods</p>
+                <h1>📊 Office Visitor Tracker - Daily Recording</h1>
+                <p>Bengaluru Velocity | Record presence daily for bi-weekly reports</p>
                 <span class="status loading" id="statusBadge">Ready</span>
             </div>
             <div class="controls">
-                <button class="btn btn-primary" onclick="recordTodayVisitors()">📌 Record Today's Data</button>
-                <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Report</button>
+                <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Bi-weekly Report</button>
                 <button class="btn btn-secondary" onclick="downloadReport()">⬇️ Download CSV</button>
                 <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
             </div>
 
             <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('today')">Today's Status</button>
-                <button class="tab-button" onclick="switchTab('biweekly')">Bi-weekly Report</button>
-                <button class="tab-button" onclick="switchTab('history')">Data History</button>
+                <button class="tab-button active" onclick="switchTab('record')">📝 Record Today</button>
+                <button class="tab-button" onclick="switchTab('biweekly')">📊 Bi-weekly Report</button>
+                <button class="tab-button" onclick="switchTab('history')">📅 Data History</button>
             </div>
         </div>
 
-        <!-- Today's Status Tab -->
-        <div id="today" class="tab-content active">
-            <div class="main-content">
-                <div class="card">
-                    <h2>✅ Currently in Office</h2>
-                    <div class="stats">
-                        <div class="stat-box">
-                            <div class="stat-number" id="presentCount">0</div>
-                            <div class="stat-label">Present</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="totalCount">4</div>
-                            <div class="stat-label">Total Team</div>
-                        </div>
-                    </div>
-                    <div class="visitor-grid" id="presentGrid">
-                        <div class="empty-state">No data recorded yet.</div>
-                    </div>
-                    <div class="source-link">
-                        <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 View on Deloitte Magnet</a>
-                    </div>
+        <!-- Record Today Tab -->
+        <div id="record" class="tab-content active">
+            <div class="card">
+                <h2>📝 Record Today's Office Presence</h2>
+                
+                <div class="instructions">
+                    <div class="instruction-title">📌 How to Use:</div>
+                    1. Open Deloitte Magnet: <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank" style="color: #0066cc; text-decoration: underline;">https://magnet.deloitte.com/Colleagues/Today</a><br>
+                    2. Check "In Bengaluru Velocity" section<br>
+                    3. Click on team members present below to mark them as ✅ Present<br>
+                    4. Members not clicked will be marked as ❌ Absent<br>
+                    5. Click "Save Today's Data" to store the record
                 </div>
 
-                <div class="card">
-                    <h2>❌ Not in Office</h2>
-                    <div class="stats">
-                        <div class="stat-box">
-                            <div class="stat-number" id="absentCount">4</div>
-                            <div class="stat-label">Absent</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number" id="presentPercentage">0%</div>
-                            <div class="stat-label">Attendance</div>
-                        </div>
-                    </div>
-                    <div class="visitor-grid" id="absentGrid">
-                        <div class="empty-state">Load today's data to see who's absent.</div>
-                    </div>
-                    <div class="timestamp" id="timestamp"></div>
+                <div class="date-range" id="currentDate">
+                    Today: <strong id="todayDateDisplay"></strong>
+                </div>
+
+                <div class="visitor-grid" id="recordGrid">
+                    <!-- Team members will be loaded here -->
+                </div>
+
+                <div class="save-section">
+                    <button class="btn btn-success" onclick="saveTodayData()">✅ Save Today's Data</button>
+                    <button class="btn btn-secondary" onclick="clearSelections()">🔄 Clear Selections</button>
+                </div>
+
+                <div class="timestamp" id="lastRecordedTimestamp"></div>
+
+                <div class="info-box">
+                    💡 <strong>Tip:</strong> Record data daily to get accurate bi-weekly reports. The system automatically marks anyone not selected as Absent.
                 </div>
             </div>
         </div>
@@ -473,7 +509,7 @@
         <!-- Bi-weekly Report Tab -->
         <div id="biweekly" class="tab-content">
             <div class="card">
-                <h2>📈 Bi-weekly Attendance Report</h2>
+                <h2>📈 Bi-weekly Attendance Report (Last 14 Days)</h2>
                 <div class="date-range" id="dateRangeDisplay">
                     Select a report to view details
                 </div>
@@ -491,13 +527,13 @@
                     <tbody id="reportBody">
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 40px;">
-                                No reports generated yet. Click "Generate Report" to create one.
+                                No data yet. Start recording daily on the "Record Today" tab.
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="export-button">
+                <div style="margin-top: 20px;">
                     <button class="btn btn-success" onclick="downloadReport()">📥 Export as CSV</button>
                 </div>
             </div>
@@ -506,22 +542,25 @@
         <!-- Data History Tab -->
         <div id="history" class="tab-content">
             <div class="card">
-                <h2>📅 Data History</h2>
+                <h2>📅 Data History - All Records</h2>
                 <ul class="history-list" id="historyList">
-                    <li class="empty-state">No data recorded yet. Start by clicking "Record Today's Data"</li>
+                    <li class="empty-state">No data recorded yet. Start by recording today's data!</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // Team members list - 4 members only
+        // Team members list - 4 members
         const TEAM_NAMES = [
             'Neha Fnu',
             'Nirmala S',
             'Gourav Kumar',
             'Trikani Adarsh Mallappa'
         ];
+
+        // Track selected members for today
+        let todaySelection = {};
 
         // Initialize data storage
         function initializeStorage() {
@@ -534,30 +573,83 @@
             return new Date().toISOString().split('T')[0];
         }
 
-        function recordTodayVisitors() {
-            // Simulated data from Deloitte Magnet - In Bengaluru Velocity section
-            const allVisitorsInOffice = [
-                'Ajit Bagewadi',
-                'Neha Fnu',
-                'Pranavananda Pranavananda',
-                'Nirmala S',
-                'Shefali Nayak'
-            ];
+        function formatDateDisplay(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
-            // Filter for team members
-            const presentTeam = TEAM_NAMES.filter(name => 
-                allVisitorsInOffice.some(visitor => 
-                    visitor.toLowerCase().includes(name.toLowerCase()) ||
-                    name.toLowerCase().includes(visitor.toLowerCase())
-                )
-            );
-
-            const absentTeam = TEAM_NAMES.filter(name => 
-                !presentTeam.includes(name)
-            );
-
-            // Save today's data
+        function initializeRecordingUI() {
             const today = getTodayDate();
+            document.getElementById('todayDateDisplay').textContent = formatDateDisplay(today);
+
+            // Load today's recording grid
+            const recordGrid = document.getElementById('recordGrid');
+            recordGrid.innerHTML = TEAM_NAMES.map((name, index) => 
+                createRecordingCard(name, index)
+            ).join('');
+
+            // Check if today already has data
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            if (data[today]) {
+                // Load today's data into selection
+                data[today].present.forEach(name => {
+                    todaySelection[name] = true;
+                });
+                updateRecordingUI();
+            }
+
+            updateLastRecordedTimestamp();
+        }
+
+        function createRecordingCard(name, index) {
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const isSelected = todaySelection[name] || false;
+            const selectedClass = isSelected ? 'selected-present' : '';
+            
+            return `
+                <div class="visitor-card ${selectedClass}" onclick="toggleSelection('${name}')" id="card-${index}">
+                    <div class="avatar">${initials}</div>
+                    <div class="name">${name}</div>
+                    <span class="status-badge ${isSelected ? 'present' : 'absent'}">
+                        ${isSelected ? '✅ Present' : '❌ Absent'}
+                    </span>
+                </div>
+            `;
+        }
+
+        function toggleSelection(name) {
+            todaySelection[name] = !todaySelection[name];
+            updateRecordingUI();
+        }
+
+        function updateRecordingUI() {
+            TEAM_NAMES.forEach((name, index) => {
+                const card = document.getElementById(`card-${index}`);
+                const isSelected = todaySelection[name] || false;
+                
+                card.className = 'visitor-card';
+                if (isSelected) {
+                    card.classList.add('selected-present');
+                    card.querySelector('.status-badge').textContent = '✅ Present';
+                    card.querySelector('.status-badge').className = 'status-badge present';
+                } else {
+                    card.classList.add('selected-absent');
+                    card.querySelector('.status-badge').textContent = '❌ Absent';
+                    card.querySelector('.status-badge').className = 'status-badge absent';
+                }
+            });
+        }
+
+        function saveTodayData() {
+            const today = getTodayDate();
+            const presentTeam = TEAM_NAMES.filter(name => todaySelection[name]);
+            const absentTeam = TEAM_NAMES.filter(name => !todaySelection[name]);
+
+            // Save to localStorage
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             data[today] = {
                 present: presentTeam,
@@ -566,52 +658,32 @@
             };
             localStorage.setItem('visitorTrackerData', JSON.stringify(data));
 
-            // Update display
-            updateTodayDisplay(presentTeam, absentTeam);
+            // Update UI
+            updateLastRecordedTimestamp();
             updateHistoryDisplay();
             
-            document.getElementById('statusBadge').textContent = '✓ Data recorded for ' + today;
+            document.getElementById('statusBadge').textContent = '✓ Data saved for ' + today;
             document.getElementById('statusBadge').className = 'status success';
+
+            alert('✅ Today\'s data has been saved successfully!\n\nPresent: ' + presentTeam.length + '\nAbsent: ' + absentTeam.length);
         }
 
-        function updateTodayDisplay(presentTeam, absentTeam) {
-            const presentGrid = document.getElementById('presentGrid');
-            const absentGrid = document.getElementById('absentGrid');
-            
-            document.getElementById('presentCount').textContent = presentTeam.length;
-            document.getElementById('absentCount').textContent = absentTeam.length;
-            
-            const percentage = Math.round((presentTeam.length / TEAM_NAMES.length) * 100);
-            document.getElementById('presentPercentage').textContent = percentage + '%';
-
-            if (presentTeam.length > 0) {
-                presentGrid.innerHTML = presentTeam.map(name => createVisitorCard(name, true)).join('');
-            } else {
-                presentGrid.innerHTML = '<div class="empty-state">No team members present</div>';
-            }
-
-            if (absentTeam.length > 0) {
-                absentGrid.innerHTML = absentTeam.map(name => createVisitorCard(name, false)).join('');
-            } else {
-                absentGrid.innerHTML = '<div class="empty-state">Everyone in office! 🎉</div>';
-            }
-
-            document.getElementById('timestamp').textContent = 
-                'Last recorded: ' + new Date().toLocaleString();
+        function clearSelections() {
+            todaySelection = {};
+            updateRecordingUI();
         }
 
-        function createVisitorCard(name, isPresent) {
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-            const statusClass = isPresent ? 'present' : 'absent';
-            const statusText = isPresent ? 'Present' : 'Absent';
+        function updateLastRecordedTimestamp() {
+            const today = getTodayDate();
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             
-            return `
-                <div class="visitor-card ${statusClass}">
-                    <div class="avatar">${initials}</div>
-                    <div class="name">${name}</div>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                </div>
-            `;
+            if (data[today]) {
+                document.getElementById('lastRecordedTimestamp').textContent = 
+                    '✓ Last recorded: ' + data[today].timestamp;
+            } else {
+                document.getElementById('lastRecordedTimestamp').textContent = 
+                    'No data recorded for today yet';
+            }
         }
 
         function generateBiWeeklyReport() {
@@ -626,7 +698,7 @@
 
             // Count attendances in last 2 weeks
             Object.keys(data).forEach(date => {
-                const recordDate = new Date(date);
+                const recordDate = new Date(date + 'T00:00:00');
                 if (recordDate >= twoWeeksAgo && recordDate <= today) {
                     const record = data[date];
                     TEAM_NAMES.forEach(name => {
@@ -643,19 +715,29 @@
             // Update report display
             const tbody = document.getElementById('reportBody');
             let html = '';
+            let hasData = false;
+
             TEAM_NAMES.forEach(name => {
                 const stats = reportData[name];
-                const attendance = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
-                html += `
-                    <tr>
-                        <td class="name-cell">${name}</td>
-                        <td class="present-count">${stats.present}</td>
-                        <td class="absent-count">${stats.absent}</td>
-                        <td>${stats.total}</td>
-                        <td class="attendance">${attendance}%</td>
-                    </tr>
-                `;
+                if (stats.total > 0) {
+                    hasData = true;
+                    const attendance = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+                    html += `
+                        <tr>
+                            <td class="name-cell">${name}</td>
+                            <td class="present-count">${stats.present}</td>
+                            <td class="absent-count">${stats.absent}</td>
+                            <td>${stats.total}</td>
+                            <td class="attendance">${attendance}%</td>
+                        </tr>
+                    `;
+                }
             });
+
+            if (!hasData) {
+                html = '<tr><td colspan="5" style="text-align: center; padding: 40px;">No data in the last 14 days. Start recording daily data.</td></tr>';
+            }
+
             tbody.innerHTML = html;
 
             const startDate = twoWeeksAgo.toLocaleDateString();
@@ -682,9 +764,9 @@
                 const record = data[date];
                 html += `
                     <li class="history-item" onclick="viewHistoryData('${date}')">
-                        <div class="history-item-date">📅 ${new Date(date).toLocaleDateString()}</div>
+                        <div class="history-item-date">📅 ${formatDateDisplay(date)}</div>
                         <div class="history-item-details">
-                            Present: ${record.present.length} | Absent: ${record.absent.length}
+                            Present: ${record.present.length} | Absent: ${record.absent.length} | ${record.timestamp}
                         </div>
                     </li>
                 `;
@@ -695,8 +777,22 @@
         function viewHistoryData(date) {
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             const record = data[date];
-            updateTodayDisplay(record.present, record.absent);
-            switchTab('today');
+            
+            // Switch to record tab and load the data
+            switchTab('record');
+            
+            // Set the date display
+            document.getElementById('todayDateDisplay').textContent = formatDateDisplay(date);
+            
+            // Load the selection
+            todaySelection = {};
+            record.present.forEach(name => {
+                todaySelection[name] = true;
+            });
+            
+            updateRecordingUI();
+            document.getElementById('lastRecordedTimestamp').textContent = 
+                '📅 Viewing: ' + record.timestamp;
         }
 
         function downloadReport() {
@@ -715,7 +811,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'office_visitor_report.csv';
+            a.download = 'office_visitor_report_' + new Date().toISOString().split('T')[0] + '.csv';
             a.click();
         }
 
@@ -730,12 +826,15 @@
 
             // Show selected tab
             document.getElementById(tabName).classList.add('active');
+            
+            // Highlight the button
             event.target.classList.add('active');
         }
 
         function clearAllData() {
-            if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+            if (confirm('⚠️ Are you sure you want to delete ALL recorded data? This cannot be undone!')) {
                 localStorage.setItem('visitorTrackerData', JSON.stringify({}));
+                todaySelection = {};
                 location.reload();
             }
         }
@@ -743,8 +842,9 @@
         // Initialize on page load
         window.addEventListener('load', () => {
             initializeStorage();
+            initializeRecordingUI();
             updateHistoryDisplay();
-            console.log('Office Visitor Tracker initialized');
+            console.log('Office Visitor Tracker - Daily Recording Mode');
             console.log('Team members:', TEAM_NAMES);
         });
     </script>
