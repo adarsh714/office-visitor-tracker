@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Visitor Tracker - Bengaluru Velocity</title>
+    <title>Office Visitor Tracker - Bi-weekly Reports</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -40,6 +40,7 @@
         .header p {
             color: #666;
             font-size: 14px;
+            margin-bottom: 15px;
         }
 
         .controls {
@@ -79,6 +80,24 @@
             background: #d0d0d0;
         }
 
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
         .status {
             display: inline-block;
             padding: 8px 12px;
@@ -98,9 +117,35 @@
             color: #155724;
         }
 
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .main-content {
@@ -195,12 +240,6 @@
             color: #721c24;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -228,6 +267,64 @@
             margin-top: 5px;
         }
 
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .report-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .report-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .report-table .name-cell {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .report-table .present-count {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .report-table .absent-count {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .report-table .attendance {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .date-range {
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
         .source-link {
             background: #f0f4ff;
             padding: 10px;
@@ -246,16 +343,6 @@
             text-decoration: underline;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .visitor-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-
         .timestamp {
             font-size: 12px;
             color: #999;
@@ -264,14 +351,57 @@
             border-top: 1px solid #eee;
         }
 
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px;
-            border-radius: 4px;
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .visitor-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .report-table {
+                font-size: 12px;
+            }
+
+            .report-table th, .report-table td {
+                padding: 8px;
+            }
+        }
+
+        .history-list {
+            list-style: none;
             margin-top: 15px;
+        }
+
+        .history-item {
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+
+        .history-item-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-item-details {
             font-size: 12px;
-            color: #1565c0;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .export-button {
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -279,145 +409,195 @@
     <div class="container">
         <div class="header">
             <div>
-                <h1>📍 Office Visitor Tracker</h1>
-                <p>Bengaluru Velocity | Track your team's presence</p>
-                <span class="status loading" id="statusBadge">Ready to fetch</span>
+                <h1>📊 Office Visitor Tracker - Bi-weekly Reports</h1>
+                <p>Bengaluru Velocity | Track team presence over 2-week periods</p>
+                <span class="status loading" id="statusBadge">Ready</span>
             </div>
             <div class="controls">
-                <button class="btn btn-primary" onclick="fetchVisitorData()">🔄 Fetch Data from Deloitte</button>
-                <button class="btn btn-secondary" onclick="clearData()">🗑️ Clear</button>
+                <button class="btn btn-primary" onclick="recordTodayVisitors()">📌 Record Today's Data</button>
+                <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Report</button>
+                <button class="btn btn-secondary" onclick="downloadReport()">⬇️ Download CSV</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('today')">Today's Status</button>
+                <button class="tab-button" onclick="switchTab('biweekly')">Bi-weekly Report</button>
+                <button class="tab-button" onclick="switchTab('history')">Data History</button>
             </div>
         </div>
 
-        <div class="main-content">
-            <!-- Present Section -->
-            <div class="card">
-                <h2>✅ Currently in Office</h2>
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number" id="presentCount">0</div>
-                        <div class="stat-label">Present</div>
+        <!-- Today's Status Tab -->
+        <div id="today" class="tab-content active">
+            <div class="main-content">
+                <div class="card">
+                    <h2>✅ Currently in Office</h2>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="presentCount">0</div>
+                            <div class="stat-label">Present</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="totalCount">4</div>
+                            <div class="stat-label">Total Team</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="totalCount">0</div>
-                        <div class="stat-label">Total Team</div>
+                    <div class="visitor-grid" id="presentGrid">
+                        <div class="empty-state">No data recorded yet.</div>
+                    </div>
+                    <div class="source-link">
+                        <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 View on Deloitte Magnet</a>
                     </div>
                 </div>
-                <div class="visitor-grid" id="presentGrid">
-                    <div class="empty-state">No data fetched yet. Click "Fetch Data" to get started.</div>
-                </div>
-                <div class="source-link">
-                    <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 View on Deloitte Magnet</a>
-                </div>
-                <div class="info-box">
-                    💡 The system will check the "In Bengaluru Velocity" section on Deloitte Magnet and match against your predefined team list.
+
+                <div class="card">
+                    <h2>❌ Not in Office</h2>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-number" id="absentCount">4</div>
+                            <div class="stat-label">Absent</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="presentPercentage">0%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                    <div class="visitor-grid" id="absentGrid">
+                        <div class="empty-state">Load today's data to see who's absent.</div>
+                    </div>
+                    <div class="timestamp" id="timestamp"></div>
                 </div>
             </div>
+        </div>
 
-            <!-- Absent Section -->
+        <!-- Bi-weekly Report Tab -->
+        <div id="biweekly" class="tab-content">
             <div class="card">
-                <h2>❌ Not in Office</h2>
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-number" id="absentCount">0</div>
-                        <div class="stat-label">Absent</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="presentPercentage">0%</div>
-                        <div class="stat-label">Attendance Rate</div>
-                    </div>
+                <h2>📈 Bi-weekly Attendance Report</h2>
+                <div class="date-range" id="dateRangeDisplay">
+                    Select a report to view details
                 </div>
-                <div class="visitor-grid" id="absentGrid">
-                    <div class="empty-state">Awaiting data...</div>
+                
+                <table class="report-table" id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Team Member</th>
+                            <th>Days Present</th>
+                            <th>Days Absent</th>
+                            <th>Total Days Tracked</th>
+                            <th>Attendance %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                No reports generated yet. Click "Generate Report" to create one.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="export-button">
+                    <button class="btn btn-success" onclick="downloadReport()">📥 Export as CSV</button>
                 </div>
-                <div class="timestamp" id="timestamp"></div>
+            </div>
+        </div>
+
+        <!-- Data History Tab -->
+        <div id="history" class="tab-content">
+            <div class="card">
+                <h2>📅 Data History</h2>
+                <ul class="history-list" id="historyList">
+                    <li class="empty-state">No data recorded yet. Start by clicking "Record Today's Data"</li>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // Predefined team names - exactly as provided
+        // Team members list - 4 members only
         const TEAM_NAMES = [
             'Neha Fnu',
             'Nirmala S',
-            'Gourav',
-            'Kumar',
-            'Trikani',
-            'Adarsh Mallappa'
+            'Gourav Kumar',
+            'Trikani Adarsh Mallappa'
         ];
 
-        // Simulated data from "In Bengaluru Velocity" section
-        // In production, this would fetch from Deloitte Magnet API or web scraping
-        const SIMULATED_BENGALURU_VELOCITY = [
-            'Ajit Bagewadi',
-            'Neha Fnu',
-            'Pranavananda Pranavananda',
-            'Nirmala S',
-            'Shefali Nayak'
-        ];
-
-        async function fetchVisitorData() {
-            const statusBadge = document.getElementById('statusBadge');
-            statusBadge.textContent = 'Loading...';
-            statusBadge.className = 'status loading';
-
-            try {
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // Filter for team members who are in Bengaluru Velocity
-                const presentTeam = TEAM_NAMES.filter(name => 
-                    SIMULATED_BENGALURU_VELOCITY.some(visitor => 
-                        visitor.toLowerCase().includes(name.toLowerCase()) ||
-                        name.toLowerCase().includes(visitor.toLowerCase())
-                    )
-                );
-
-                const absentTeam = TEAM_NAMES.filter(name => 
-                    !presentTeam.includes(name)
-                );
-
-                // Update UI
-                updateDisplay(presentTeam, absentTeam);
-                
-                statusBadge.textContent = '✓ Last updated: ' + new Date().toLocaleTimeString();
-                statusBadge.className = 'status success';
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                statusBadge.textContent = '✗ Error fetching data';
-                statusBadge.className = 'status error';
+        // Initialize data storage
+        function initializeStorage() {
+            if (!localStorage.getItem('visitorTrackerData')) {
+                localStorage.setItem('visitorTrackerData', JSON.stringify({}));
             }
         }
 
-        function updateDisplay(presentTeam, absentTeam) {
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function recordTodayVisitors() {
+            // Simulated data from Deloitte Magnet - In Bengaluru Velocity section
+            const allVisitorsInOffice = [
+                'Ajit Bagewadi',
+                'Neha Fnu',
+                'Pranavananda Pranavananda',
+                'Nirmala S',
+                'Shefali Nayak'
+            ];
+
+            // Filter for team members
+            const presentTeam = TEAM_NAMES.filter(name => 
+                allVisitorsInOffice.some(visitor => 
+                    visitor.toLowerCase().includes(name.toLowerCase()) ||
+                    name.toLowerCase().includes(visitor.toLowerCase())
+                )
+            );
+
+            const absentTeam = TEAM_NAMES.filter(name => 
+                !presentTeam.includes(name)
+            );
+
+            // Save today's data
+            const today = getTodayDate();
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            data[today] = {
+                present: presentTeam,
+                absent: absentTeam,
+                timestamp: new Date().toLocaleString()
+            };
+            localStorage.setItem('visitorTrackerData', JSON.stringify(data));
+
+            // Update display
+            updateTodayDisplay(presentTeam, absentTeam);
+            updateHistoryDisplay();
+            
+            document.getElementById('statusBadge').textContent = '✓ Data recorded for ' + today;
+            document.getElementById('statusBadge').className = 'status success';
+        }
+
+        function updateTodayDisplay(presentTeam, absentTeam) {
             const presentGrid = document.getElementById('presentGrid');
             const absentGrid = document.getElementById('absentGrid');
             
-            // Update stats
             document.getElementById('presentCount').textContent = presentTeam.length;
             document.getElementById('absentCount').textContent = absentTeam.length;
-            document.getElementById('totalCount').textContent = TEAM_NAMES.length;
             
             const percentage = Math.round((presentTeam.length / TEAM_NAMES.length) * 100);
             document.getElementById('presentPercentage').textContent = percentage + '%';
 
-            // Update present grid
             if (presentTeam.length > 0) {
                 presentGrid.innerHTML = presentTeam.map(name => createVisitorCard(name, true)).join('');
             } else {
-                presentGrid.innerHTML = '<div class="empty-state">No team members present today</div>';
+                presentGrid.innerHTML = '<div class="empty-state">No team members present</div>';
             }
 
-            // Update absent grid
             if (absentTeam.length > 0) {
                 absentGrid.innerHTML = absentTeam.map(name => createVisitorCard(name, false)).join('');
             } else {
-                absentGrid.innerHTML = '<div class="empty-state">Everyone is in the office! 🎉</div>';
+                absentGrid.innerHTML = '<div class="empty-state">Everyone in office! 🎉</div>';
             }
 
-            // Update timestamp
             document.getElementById('timestamp').textContent = 
-                'Last updated: ' + new Date().toLocaleString();
+                'Last recorded: ' + new Date().toLocaleString();
         }
 
         function createVisitorCard(name, isPresent) {
@@ -434,19 +614,136 @@
             `;
         }
 
-        function clearData() {
-            document.getElementById('presentGrid').innerHTML = '<div class="empty-state">Cleared. Click "Fetch Data" to refresh.</div>';
-            document.getElementById('absentGrid').innerHTML = '<div class="empty-state">Cleared. Click "Fetch Data" to refresh.</div>';
-            document.getElementById('presentCount').textContent = '0';
-            document.getElementById('absentCount').textContent = '0';
-            document.getElementById('presentPercentage').textContent = '0%';
-            document.getElementById('statusBadge').textContent = 'Ready to fetch';
-            document.getElementById('statusBadge').className = 'status loading';
-            document.getElementById('timestamp').textContent = '';
+        function generateBiWeeklyReport() {
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            const today = new Date();
+            const twoWeeksAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+            const reportData = {};
+            TEAM_NAMES.forEach(name => {
+                reportData[name] = { present: 0, absent: 0, total: 0 };
+            });
+
+            // Count attendances in last 2 weeks
+            Object.keys(data).forEach(date => {
+                const recordDate = new Date(date);
+                if (recordDate >= twoWeeksAgo && recordDate <= today) {
+                    const record = data[date];
+                    TEAM_NAMES.forEach(name => {
+                        reportData[name].total++;
+                        if (record.present.includes(name)) {
+                            reportData[name].present++;
+                        } else {
+                            reportData[name].absent++;
+                        }
+                    });
+                }
+            });
+
+            // Update report display
+            const tbody = document.getElementById('reportBody');
+            let html = '';
+            TEAM_NAMES.forEach(name => {
+                const stats = reportData[name];
+                const attendance = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+                html += `
+                    <tr>
+                        <td class="name-cell">${name}</td>
+                        <td class="present-count">${stats.present}</td>
+                        <td class="absent-count">${stats.absent}</td>
+                        <td>${stats.total}</td>
+                        <td class="attendance">${attendance}%</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+            const startDate = twoWeeksAgo.toLocaleDateString();
+            const endDate = today.toLocaleDateString();
+            document.getElementById('dateRangeDisplay').innerHTML = 
+                `📅 Report Period: <strong>${startDate}</strong> to <strong>${endDate}</strong>`;
+
+            switchTab('biweekly');
+        }
+
+        function updateHistoryDisplay() {
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            const historyList = document.getElementById('historyList');
+            
+            const dates = Object.keys(data).sort().reverse();
+            
+            if (dates.length === 0) {
+                historyList.innerHTML = '<li class="empty-state">No data recorded yet.</li>';
+                return;
+            }
+
+            let html = '';
+            dates.forEach(date => {
+                const record = data[date];
+                html += `
+                    <li class="history-item" onclick="viewHistoryData('${date}')">
+                        <div class="history-item-date">📅 ${new Date(date).toLocaleDateString()}</div>
+                        <div class="history-item-details">
+                            Present: ${record.present.length} | Absent: ${record.absent.length}
+                        </div>
+                    </li>
+                `;
+            });
+            historyList.innerHTML = html;
+        }
+
+        function viewHistoryData(date) {
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            const record = data[date];
+            updateTodayDisplay(record.present, record.absent);
+            switchTab('today');
+        }
+
+        function downloadReport() {
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            let csv = 'Date,Team Member,Status\n';
+            
+            Object.keys(data).sort().forEach(date => {
+                const record = data[date];
+                TEAM_NAMES.forEach(name => {
+                    const status = record.present.includes(name) ? 'Present' : 'Absent';
+                    csv += `${date},${name},${status}\n`;
+                });
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'office_visitor_report.csv';
+            a.click();
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                localStorage.setItem('visitorTrackerData', JSON.stringify({}));
+                location.reload();
+            }
         }
 
         // Initialize on page load
         window.addEventListener('load', () => {
+            initializeStorage();
+            updateHistoryDisplay();
             console.log('Office Visitor Tracker initialized');
             console.log('Team members:', TEAM_NAMES);
         });
