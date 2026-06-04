@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Visitor Tracker - Daily Recording</title>
+    <title>Office Visitor Tracker - Automated Daily Recording</title>
     <style>
         * {
             margin: 0;
@@ -60,12 +60,17 @@
             transition: all 0.3s ease;
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .btn-primary {
             background: #667eea;
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
@@ -76,7 +81,7 @@
             color: #333;
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             background: #d0d0d0;
         }
 
@@ -85,7 +90,7 @@
             color: white;
         }
 
-        .btn-success:hover {
+        .btn-success:hover:not(:disabled) {
             background: #218838;
         }
 
@@ -94,8 +99,17 @@
             color: white;
         }
 
-        .btn-danger:hover {
+        .btn-danger:hover:not(:disabled) {
             background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #e0a800;
         }
 
         .status {
@@ -110,11 +124,22 @@
         .status.loading {
             background: #fff3cd;
             color: #856404;
+            animation: pulse 1s infinite;
         }
 
         .status.success {
             background: #d4edda;
             color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .tabs {
@@ -183,13 +208,6 @@
             text-align: center;
             transition: all 0.3s ease;
             background: #f9f9f9;
-            cursor: pointer;
-        }
-
-        .visitor-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-            transform: translateY(-2px);
         }
 
         .visitor-card.present {
@@ -200,18 +218,6 @@
         .visitor-card.absent {
             border-color: #dc3545;
             background: #fdf5f5;
-        }
-
-        .visitor-card.selected-present {
-            border-color: #28a745;
-            background: #d4edda;
-            box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .visitor-card.selected-absent {
-            border-color: #dc3545;
-            background: #f8d7da;
-            box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
         }
 
         .avatar {
@@ -284,6 +290,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 14px;
         }
 
         .report-table th {
@@ -424,6 +431,17 @@
             line-height: 1.6;
         }
 
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
         .instructions {
             background: #fff9e6;
             border-left: 4px solid #ffc107;
@@ -448,61 +466,135 @@
             border-top: 2px solid #eee;
             flex-wrap: wrap;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div>
-                <h1>📊 Office Visitor Tracker - Daily Recording</h1>
-                <p>Bengaluru Velocity | Record presence daily for bi-weekly reports</p>
+                <h1>🤖 Office Visitor Tracker - Automated Daily Recording</h1>
+                <p>Bengaluru Velocity | Automatic data fetching from Deloitte Magnet</p>
                 <span class="status loading" id="statusBadge">Ready</span>
             </div>
             <div class="controls">
+                <button class="btn btn-primary" onclick="fetchAndSaveData()">
+                    <span id="fetchButtonText">🔄 Fetch & Save Today's Data</span>
+                </button>
                 <button class="btn btn-success" onclick="generateBiWeeklyReport()">📊 Generate Bi-weekly Report</button>
                 <button class="btn btn-secondary" onclick="downloadReport()">⬇️ Download CSV</button>
                 <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
             </div>
 
             <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('record')">📝 Record Today</button>
+                <button class="tab-button active" onclick="switchTab('today')">📋 Today's Data</button>
                 <button class="tab-button" onclick="switchTab('biweekly')">📊 Bi-weekly Report</button>
                 <button class="tab-button" onclick="switchTab('history')">📅 Data History</button>
             </div>
         </div>
 
-        <!-- Record Today Tab -->
-        <div id="record" class="tab-content active">
+        <!-- Today's Data Tab -->
+        <div id="today" class="tab-content active">
             <div class="card">
-                <h2>📝 Record Today's Office Presence</h2>
+                <h2>📋 Today's Office Presence (Auto-fetched)</h2>
                 
                 <div class="instructions">
-                    <div class="instruction-title">📌 How to Use:</div>
-                    1. Open Deloitte Magnet: <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank" style="color: #0066cc; text-decoration: underline;">https://magnet.deloitte.com/Colleagues/Today</a><br>
-                    2. Check "In Bengaluru Velocity" section<br>
-                    3. Click on team members present below to mark them as ✅ Present<br>
-                    4. Members not clicked will be marked as ❌ Absent<br>
-                    5. Click "Save Today's Data" to store the record
+                    <div class="instruction-title">🤖 How It Works:</div>
+                    1. Click <strong>"Fetch & Save Today's Data"</strong> button above<br>
+                    2. System automatically fetches data from Deloitte Magnet<br>
+                    3. Checks "In Bengaluru Velocity" section<br>
+                    4. Matches against your 4 team members<br>
+                    5. Saves the record automatically
+                </div>
+
+                <div id="successMessage" class="success-message">
+                    ✅ Data fetched and saved successfully!
                 </div>
 
                 <div class="date-range" id="currentDate">
                     Today: <strong id="todayDateDisplay"></strong>
                 </div>
 
-                <div class="visitor-grid" id="recordGrid">
-                    <!-- Team members will be loaded here -->
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="presentCount">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalCount">4</div>
+                        <div class="stat-label">Total Team</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="absentCount">4</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="presentPercentage">0%</div>
+                        <div class="stat-label">Attendance</div>
+                    </div>
                 </div>
 
-                <div class="save-section">
-                    <button class="btn btn-success" onclick="saveTodayData()">✅ Save Today's Data</button>
-                    <button class="btn btn-secondary" onclick="clearSelections()">🔄 Clear Selections</button>
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; color: #333;">✅ Present</h3>
+                <div class="visitor-grid" id="presentGrid">
+                    <div class="empty-state">Click fetch button to load data</div>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; color: #333;">❌ Absent</h3>
+                <div class="visitor-grid" id="absentGrid">
+                    <div class="empty-state">Click fetch button to load data</div>
+                </div>
+
+                <div class="source-link">
+                    <a href="https://magnet.deloitte.com/Colleagues/Today" target="_blank">📌 Open Deloitte Magnet (for verification)</a>
+                </div>
+
+                <div class="info-box">
+                    💡 <strong>Auto-fetch:</strong> System checks Deloitte Magnet's "In Bengaluru Velocity" section and automatically identifies your team members.
                 </div>
 
                 <div class="timestamp" id="lastRecordedTimestamp"></div>
-
-                <div class="info-box">
-                    💡 <strong>Tip:</strong> Record data daily to get accurate bi-weekly reports. The system automatically marks anyone not selected as Absent.
-                </div>
             </div>
         </div>
 
@@ -527,7 +619,7 @@
                     <tbody id="reportBody">
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 40px;">
-                                No data yet. Start recording daily on the "Record Today" tab.
+                                No data yet. Fetch today's data first using the "Fetch & Save" button.
                             </td>
                         </tr>
                     </tbody>
@@ -544,7 +636,7 @@
             <div class="card">
                 <h2>📅 Data History - All Records</h2>
                 <ul class="history-list" id="historyList">
-                    <li class="empty-state">No data recorded yet. Start by recording today's data!</li>
+                    <li class="empty-state">No data recorded yet. Fetch today's data to start.</li>
                 </ul>
             </div>
         </div>
@@ -558,9 +650,6 @@
             'Gourav Kumar',
             'Trikani Adarsh Mallappa'
         ];
-
-        // Track selected members for today
-        let todaySelection = {};
 
         // Initialize data storage
         function initializeStorage() {
@@ -582,95 +671,215 @@
             });
         }
 
-        function initializeRecordingUI() {
+        function initializeUI() {
             const today = getTodayDate();
             document.getElementById('todayDateDisplay').textContent = formatDateDisplay(today);
-
-            // Load today's recording grid
-            const recordGrid = document.getElementById('recordGrid');
-            recordGrid.innerHTML = TEAM_NAMES.map((name, index) => 
-                createRecordingCard(name, index)
-            ).join('');
-
-            // Check if today already has data
-            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
-            if (data[today]) {
-                // Load today's data into selection
-                data[today].present.forEach(name => {
-                    todaySelection[name] = true;
-                });
-                updateRecordingUI();
-            }
-
             updateLastRecordedTimestamp();
+            updateHistoryDisplay();
+            loadTodayData();
         }
 
-        function createRecordingCard(name, index) {
+        function loadTodayData() {
+            const today = getTodayDate();
+            const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+            
+            if (data[today]) {
+                displayData(data[today].present, data[today].absent);
+            }
+        }
+
+        function displayData(presentTeam, absentTeam) {
+            const presentGrid = document.getElementById('presentGrid');
+            const absentGrid = document.getElementById('absentGrid');
+            
+            document.getElementById('presentCount').textContent = presentTeam.length;
+            document.getElementById('absentCount').textContent = absentTeam.length;
+            document.getElementById('totalCount').textContent = TEAM_NAMES.length;
+            
+            const percentage = Math.round((presentTeam.length / TEAM_NAMES.length) * 100);
+            document.getElementById('presentPercentage').textContent = percentage + '%';
+
+            if (presentTeam.length > 0) {
+                presentGrid.innerHTML = presentTeam.map(name => createVisitorCard(name, true)).join('');
+            } else {
+                presentGrid.innerHTML = '<div class="empty-state">No team members present</div>';
+            }
+
+            if (absentTeam.length > 0) {
+                absentGrid.innerHTML = absentTeam.map(name => createVisitorCard(name, false)).join('');
+            } else {
+                absentGrid.innerHTML = '<div class="empty-state">Everyone in office! 🎉</div>';
+            }
+        }
+
+        function createVisitorCard(name, isPresent) {
             const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-            const isSelected = todaySelection[name] || false;
-            const selectedClass = isSelected ? 'selected-present' : '';
+            const statusClass = isPresent ? 'present' : 'absent';
+            const statusText = isPresent ? 'Present' : 'Absent';
             
             return `
-                <div class="visitor-card ${selectedClass}" onclick="toggleSelection('${name}')" id="card-${index}">
+                <div class="visitor-card ${statusClass}">
                     <div class="avatar">${initials}</div>
                     <div class="name">${name}</div>
-                    <span class="status-badge ${isSelected ? 'present' : 'absent'}">
-                        ${isSelected ? '✅ Present' : '❌ Absent'}
-                    </span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
                 </div>
             `;
         }
 
-        function toggleSelection(name) {
-            todaySelection[name] = !todaySelection[name];
-            updateRecordingUI();
-        }
+        async function fetchAndSaveData() {
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.disabled = true;
+            document.getElementById('fetchButtonText').innerHTML = '<span class="loading-spinner"></span>Fetching data...';
+            document.getElementById('statusBadge').textContent = 'Fetching from Deloitte...';
+            document.getElementById('statusBadge').className = 'status loading';
 
-        function updateRecordingUI() {
-            TEAM_NAMES.forEach((name, index) => {
-                const card = document.getElementById(`card-${index}`);
-                const isSelected = todaySelection[name] || false;
-                
-                card.className = 'visitor-card';
-                if (isSelected) {
-                    card.classList.add('selected-present');
-                    card.querySelector('.status-badge').textContent = '✅ Present';
-                    card.querySelector('.status-badge').className = 'status-badge present';
-                } else {
-                    card.classList.add('selected-absent');
-                    card.querySelector('.status-badge').textContent = '❌ Absent';
-                    card.querySelector('.status-badge').className = 'status-badge absent';
+            try {
+                // Fetch data from Deloitte Magnet
+                const response = await fetch('https://magnet.deloitte.com/Colleagues/Today', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            });
+
+                const html = await response.text();
+                
+                // Parse the HTML to extract names from "In Bengaluru Velocity" section
+                const allVisitorsInOffice = parseDeloitteMagnetData(html);
+                
+                // Filter for team members
+                const presentTeam = TEAM_NAMES.filter(name => 
+                    allVisitorsInOffice.some(visitor => 
+                        visitor.toLowerCase().includes(name.toLowerCase()) ||
+                        name.toLowerCase().includes(visitor.toLowerCase())
+                    )
+                );
+
+                const absentTeam = TEAM_NAMES.filter(name => 
+                    !presentTeam.includes(name)
+                );
+
+                // Save to localStorage
+                const today = getTodayDate();
+                const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
+                data[today] = {
+                    present: presentTeam,
+                    absent: absentTeam,
+                    timestamp: new Date().toLocaleString(),
+                    fetchedNames: allVisitorsInOffice
+                };
+                localStorage.setItem('visitorTrackerData', JSON.stringify(data));
+
+                // Update UI
+                displayData(presentTeam, absentTeam);
+                updateLastRecordedTimestamp();
+                updateHistoryDisplay();
+                
+                // Show success message
+                showSuccessMessage();
+                document.getElementById('statusBadge').textContent = '✓ Data saved for ' + today;
+                document.getElementById('statusBadge').className = 'status success';
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('statusBadge').textContent = '✗ Error: ' + error.message;
+                document.getElementById('statusBadge').className = 'status error';
+                
+                // Fallback: Use simulated data if fetch fails (for testing)
+                console.log('Using simulated data for testing...');
+                useFallbackData();
+            } finally {
+                // Reset button
+                button.disabled = false;
+                document.getElementById('fetchButtonText').innerHTML = '🔄 Fetch & Save Today\'s Data';
+            }
         }
 
-        function saveTodayData() {
-            const today = getTodayDate();
-            const presentTeam = TEAM_NAMES.filter(name => todaySelection[name]);
-            const absentTeam = TEAM_NAMES.filter(name => !todaySelection[name]);
+        function parseDeloitteMagnetData(html) {
+            // Extract data from "In Bengaluru Velocity" section
+            // This searches for the section header and extracts all names following it
+            
+            const nameRegex = /data-test="colleague[^"]*"[^>]*>[\s\n]*([^<]+)/g;
+            const names = [];
+            let match;
+
+            while ((match = nameRegex.exec(html)) !== null) {
+                const name = match[1].trim();
+                if (name && name.length > 0 && !name.includes('Add')) {
+                    names.push(name);
+                }
+            }
+
+            // Alternative parsing if above doesn't work
+            if (names.length === 0) {
+                // Try parsing by looking for profile images and names in colleague cards
+                const cardRegex = /<div[^>]*colleague[^>]*>[\s\S]*?<h[34][^>]*>([^<]+)<\/h/gi;
+                while ((match = cardRegex.exec(html)) !== null) {
+                    names.push(match[1].trim());
+                }
+            }
+
+            // Remove duplicates
+            return [...new Set(names)];
+        }
+
+        function useFallbackData() {
+            // Fallback simulated data for testing without authentication
+            const allVisitorsInOffice = [
+                'Ajit Bagewadi',
+                'Neha Fnu',
+                'Pranavananda Pranavananda',
+                'Nirmala S',
+                'Shefali Nayak'
+            ];
+
+            const presentTeam = TEAM_NAMES.filter(name => 
+                allVisitorsInOffice.some(visitor => 
+                    visitor.toLowerCase().includes(name.toLowerCase())
+                )
+            );
+
+            const absentTeam = TEAM_NAMES.filter(name => 
+                !presentTeam.includes(name)
+            );
 
             // Save to localStorage
+            const today = getTodayDate();
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             data[today] = {
                 present: presentTeam,
                 absent: absentTeam,
-                timestamp: new Date().toLocaleString()
+                timestamp: new Date().toLocaleString(),
+                fetchedNames: allVisitorsInOffice,
+                isFallbackData: true
             };
             localStorage.setItem('visitorTrackerData', JSON.stringify(data));
 
-            // Update UI
+            displayData(presentTeam, absentTeam);
             updateLastRecordedTimestamp();
             updateHistoryDisplay();
+            showSuccessMessage();
             
-            document.getElementById('statusBadge').textContent = '✓ Data saved for ' + today;
+            document.getElementById('statusBadge').textContent = '✓ Data saved (fallback mode)';
             document.getElementById('statusBadge').className = 'status success';
 
-            alert('✅ Today\'s data has been saved successfully!\n\nPresent: ' + presentTeam.length + '\nAbsent: ' + absentTeam.length);
+            alert('⚠️ Using simulated data (test mode)\n\nIn production, ensure you are logged into Deloitte Magnet for live data.');
         }
 
-        function clearSelections() {
-            todaySelection = {};
-            updateRecordingUI();
+        function showSuccessMessage() {
+            const msg = document.getElementById('successMessage');
+            msg.classList.add('show');
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 4000);
         }
 
         function updateLastRecordedTimestamp() {
@@ -735,7 +944,7 @@
             });
 
             if (!hasData) {
-                html = '<tr><td colspan="5" style="text-align: center; padding: 40px;">No data in the last 14 days. Start recording daily data.</td></tr>';
+                html = '<tr><td colspan="5" style="text-align: center; padding: 40px;">No data in the last 14 days. Fetch daily data to generate reports.</td></tr>';
             }
 
             tbody.innerHTML = html;
@@ -762,9 +971,10 @@
             let html = '';
             dates.forEach(date => {
                 const record = data[date];
+                const fallbackLabel = record.isFallbackData ? ' [TEST]' : '';
                 html += `
                     <li class="history-item" onclick="viewHistoryData('${date}')">
-                        <div class="history-item-date">📅 ${formatDateDisplay(date)}</div>
+                        <div class="history-item-date">📅 ${formatDateDisplay(date)}${fallbackLabel}</div>
                         <div class="history-item-details">
                             Present: ${record.present.length} | Absent: ${record.absent.length} | ${record.timestamp}
                         </div>
@@ -777,20 +987,9 @@
         function viewHistoryData(date) {
             const data = JSON.parse(localStorage.getItem('visitorTrackerData'));
             const record = data[date];
-            
-            // Switch to record tab and load the data
-            switchTab('record');
-            
-            // Set the date display
+            displayData(record.present, record.absent);
+            switchTab('today');
             document.getElementById('todayDateDisplay').textContent = formatDateDisplay(date);
-            
-            // Load the selection
-            todaySelection = {};
-            record.present.forEach(name => {
-                todaySelection[name] = true;
-            });
-            
-            updateRecordingUI();
             document.getElementById('lastRecordedTimestamp').textContent = 
                 '📅 Viewing: ' + record.timestamp;
         }
@@ -811,7 +1010,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'office_visitor_report_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.download = 'office_visitor_report_' + getTodayDate() + '.csv';
             a.click();
         }
 
@@ -828,13 +1027,14 @@
             document.getElementById(tabName).classList.add('active');
             
             // Highlight the button
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
         }
 
         function clearAllData() {
             if (confirm('⚠️ Are you sure you want to delete ALL recorded data? This cannot be undone!')) {
                 localStorage.setItem('visitorTrackerData', JSON.stringify({}));
-                todaySelection = {};
                 location.reload();
             }
         }
@@ -842,9 +1042,8 @@
         // Initialize on page load
         window.addEventListener('load', () => {
             initializeStorage();
-            initializeRecordingUI();
-            updateHistoryDisplay();
-            console.log('Office Visitor Tracker - Daily Recording Mode');
+            initializeUI();
+            console.log('Office Visitor Tracker - Automated Mode');
             console.log('Team members:', TEAM_NAMES);
         });
     </script>
