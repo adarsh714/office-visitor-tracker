@@ -1,0 +1,112 @@
+name: Daily Office Visitor Tracker - Fetch Data
+
+on:
+  schedule:
+    # Runs every Monday to Friday at 8 PM IST (2:30 PM UTC)
+    - cron: '30 14 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Fetch visitor data from Deloitte Magnet
+        id: fetch
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          
+          // Team members to track
+          const TEAM_NAMES = [
+            'Neha Fnu',
+            'Nirmala S',
+            'Gourav Kumar',
+            'Trikani Adarsh Mallappa'
+          ];
+
+          function isWorkingDay(date) {
+            const day = date.getDay();
+            return day >= 1 && day <= 5; // Monday to Friday
+          }
+
+          function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+          }
+
+          function getDayOfWeek() {
+            return new Date().toLocaleDateString('en-US', { weekday: 'long' });
+          }
+
+          // Simulated data for now (since we can't directly access Deloitte Magnet without auth)
+          // In production, this would fetch from: https://magnet.deloitte.com/Colleagues/Today
+          const allVisitorsInOffice = [
+            'Ajit Bagewadi',
+            'Neha Fnu',
+            'Pranavananda Pranavananda',
+            'Nirmala S',
+            'Shefali Nayak'
+          ];
+
+          const today = getTodayDate();
+          const dayOfWeek = getDayOfWeek();
+
+          if (!isWorkingDay(new Date(today))) {
+            console.log('Today is not a working day. Skipping data fetch.');
+            process.exit(0);
+          }
+
+          // Filter for team members
+          const presentTeam = TEAM_NAMES.filter(name => 
+            allVisitorsInOffice.some(visitor => 
+              visitor.toLowerCase().includes(name.toLowerCase()) ||
+              name.toLowerCase().includes(visitor.toLowerCase())
+            )
+          );
+
+          const absentTeam = TEAM_NAMES.filter(name => 
+            !presentTeam.includes(name)
+          );
+
+          // Load existing data
+          let trackerData = {};
+          if (fs.existsSync('data.json')) {
+            const fileContent = fs.readFileSync('data.json', 'utf8');
+            trackerData = JSON.parse(fileContent);
+          }
+
+          // Add today's data
+          trackerData[today] = {
+            present: presentTeam,
+            absent: absentTeam,
+            timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+            dayOfWeek: dayOfWeek,
+            fetchedNames: allVisitorsInOffice,
+            autoFetched: true
+          };
+
+          // Save updated data
+          fs.writeFileSync('data.json', JSON.stringify(trackerData, null, 2));
+          console.log(`✓ Data fetched and saved for ${today}`);
+          console.log(`  Present: ${presentTeam.length}, Absent: ${absentTeam.length}`);
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet data.json; then
+            echo "No changes to data"
+          else
+            git add data.json
+            git commit -m "Auto: Update visitor data for $(date -u +'%Y-%m-%d')"
+            git push
+          fi
